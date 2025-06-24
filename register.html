@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow p-4" style="width: 100%; max-width: 500px; margin: auto;">
+  <h3 class="text-center mb-4">Crear Cuenta</h3>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.username.label(class="form-label") }}
+      {{ form.username(class="form-control", placeholder="Ingrese su nombre de usuario") }}
+      {% if form.username.errors %}
+        <div class="text-danger small">{{ form.username.errors[0] }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.email.label(class="form-label") }}
+      {{ form.email(class="form-control", placeholder="ejemplo@correo.com") }}
+      {% if form.email.errors %}
+        <div class="text-danger small">{{ form.email.errors[0] }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.password.label(class="form-label") }}
+      {{ form.password(class="form-control", placeholder="Contraseña") }}
+      {% if form.password.errors %}
+        <div class="text-danger small">{{ form.password.errors[0] }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.confirm.label(class="form-label") }}
+      {{ form.confirm(class="form-control", placeholder="Confirmar contraseña") }}
+      {% if form.confirm.errors %}
+        <div class="text-danger small">{{ form.confirm.errors[0] }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.rol.label(class="form-label") }}
+      {{ form.rol(class="form-select") }}
+      {% if form.rol.errors %}
+        <div class="text-danger small">{{ form.rol.errors[0] }}</div>
+      {% endif %}
+    </div>
+
+    <div class="d-grid">
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </form>
+</div>
+{% endblock %}

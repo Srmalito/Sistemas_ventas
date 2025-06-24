@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2 class="mb-4">{{ titulo }}</h2>
+
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.nombre.label }} {{ form.nombre(class='form-control') }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.apellido.label }} {{ form.apellido(class='form-control') }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.celular.label }} {{ form.celular(class='form-control') }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.direccion.label }} {{ form.direccion(class='form-control') }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.departamento.label }} {{ form.departamento(class='form-select', id='departamento') }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.provincia.label }} {{ form.provincia(class='form-select', id='provincia') }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.distrito.label }} {{ form.distrito(class='form-select', id='distrito') }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.fecha_registro.label }} {{ form.fecha_registro(class='form-control', type='date') }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.email.label }} {{ form.email(class='form-control') }}
+    </div>
+
+    <div class="mt-4">
+      {{ form.submit(class='btn btn-primary') }}
+      <a href="{{ url_for('main.clientes') }}" class="btn btn-secondary ms-2">Salir</a>
+    </div>
+  </form>
+
+  <script>
+    const deptSelect = document.getElementById('departamento');
+    const provSelect = document.getElementById('provincia');
+    const distSelect = document.getElementById('distrito');
+
+    deptSelect.addEventListener('change', function () {
+      fetch(`/api/provincias?departamento_id=${this.value}`)
+        .then(res => res.json())
+        .then(data => {
+          provSelect.innerHTML = '<option value="">Seleccione</option>';
+          distSelect.innerHTML = '<option value="">Seleccione</option>';
+          data.forEach(p => provSelect.innerHTML += `<option value="${p.id}">${p.nombre}</option>`);
+        });
+    });
+
+    provSelect.addEventListener('change', function () {
+      fetch(`/api/distritos?provincia_id=${this.value}`)
+        .then(res => res.json())
+        .then(data => {
+          distSelect.innerHTML = '<option value="">Seleccione</option>';
+          data.forEach(d => distSelect.innerHTML += `<option value="${d.id}">${d.nombre}</option>`);
+        });
+    });
+  </script>
+{% endblock %}

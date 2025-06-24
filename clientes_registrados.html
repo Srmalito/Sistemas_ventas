@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-3">Clientes Registrados con Ubicación</h3>
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Dirección</th>
+        <th>Departamento</th>
+        <th>Provincia</th>
+        <th>Distrito</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cliente in clientes %}
+      <tr>
+        <td>{{ cliente.nombre }}</td>
+        <td>{{ cliente.email }}</td>
+        <td>{{ cliente.direccion }}</td>
+        <td>{{ cliente.departamento.nombre }}</td>
+        <td>{{ cliente.provincia.nombre }}</td>
+        <td>{{ cliente.distrito.nombre }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

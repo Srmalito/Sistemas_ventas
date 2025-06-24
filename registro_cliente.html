@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow p-4" style="max-width: 600px; margin: auto;">
+  <h3 class="text-center mb-4">Registrar Cliente con Ubicación</h3>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.nombre.label(class="form-label") }}
+      {{ form.nombre(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.email.label(class="form-label") }}
+      {{ form.email(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.direccion.label(class="form-label") }}
+      {{ form.direccion(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.departamento.label(class="form-label") }}
+      {{ form.departamento(class="form-select") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.provincia.label(class="form-label") }}
+      {{ form.provincia(class="form-select") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.distrito.label(class="form-label") }}
+      {{ form.distrito(class="form-select") }}
+    </div>
+
+    <div class="d-grid">
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </form>
+</div>
+{% endblock %}

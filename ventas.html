@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Historial de Ventas</h2>
+<a href="{{ url_for('main.nueva_venta') }}" class="btn btn-primary mb-3">Nueva Venta</a>
+
+<table class="table table-bordered border-dark">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Cliente</th>
+      <th>Total</th>
+      <th>Productos</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for v in ventas %}
+    <tr>
+      <td>{{ v.id }}</td>
+      <td>{{ v.cliente.nombre }}</td>
+      <td>${{ v.total }}</td>
+      <td>
+        <ul>
+          {% for d in v.detalles %}
+          <li>{{ d.producto.nombre }} x {{ d.cantidad }} ({{ d.subtotal }})</li>
+          {% endfor %}
+        </ul>
+        <form method="POST" action="{{ url_for('main.eliminar_venta', id=v.id) }}" style="display:inline-block">
+         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+         <button class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar venta?')">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
