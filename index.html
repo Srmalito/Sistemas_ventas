@@ -1,6 +1,67 @@
 {% extends 'base.html' %}
 {% block content %}
+<body class="bg-light" style="background: linear-gradient(135deg, #0d6efd, #6610f2); min-height: 100vh;">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/clan-pro" rel="stylesheet">
   <div class="p-5 bg-primary text-white rounded mt-5">
-    <h1>Bienvenido al Sistema de Ventas FiberPRO</h1>
+    <h1 class="text-center">"Bienvenido al Sistema de Ventas"</h1>
   </div>
+  <style>
+    .card-hover:hover {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 2px solid rgb(255, 255, 255, 0.2);
+    }
+    .card-hover:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px(0, 0, 0, 0.4);
+    }
+    h1 {
+      color: white;
+      font-family: 'Plush-Trial';
+    }
+  </style>
+  <div class="container mt-4">
+  <div class="row g-4 justify-content-center">
+    <div class="col-6 col-md-4">
+      <a href="/productos" class="text-decoration-none">
+        <div class="card bg-success text-white shadow card-hover">
+          <div class="card-body text-center">
+            <i class="bi bi-box-seam-fill fs-1"></i>
+            <h5 class="card-title mt-2">Productos</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4">
+      <a href="/clientes" class="text-decoration-none">
+        <div class="card bg-warning text-white shadow card-hover">
+          <div class="card-body text-center">
+            <i class="bi bi-people-fill fs-1"></i>
+            <h5 class="card-title mt-2">Clientes</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4">
+      <a href="/ventas" class="text-decoration-none">
+        <div class="card bg-danger text-white shadow card-hover">
+          <div class="card-body text-center">
+            <i class="bi bi-cart-fill fs-1"></i>
+            <h5 class="card-title mt-2">Ventas</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4">
+      <a href="/register" class="text-decoration-none">
+        <div class="card bg-dark text-white shadow card-hover">
+          <div class="card-body text-center">
+            <i class="bi bi-people-fill fs-1"></i>
+            <h5 class="card-title mt-2">Nuevo User</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
 {% endblock %}

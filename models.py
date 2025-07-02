@@ -42,6 +42,7 @@ class Venta(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
     total = db.Column(db.Float, nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
     detalles = db.relationship('DetalleVenta', backref='venta', cascade='all, delete-orphan', lazy=True)
 
 class DetalleVenta(db.Model):

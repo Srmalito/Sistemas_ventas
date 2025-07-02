@@ -3,7 +3,26 @@ from app.forms import RegisterForm, LoginForm, ProductoForm, VentaForm, ClienteR
 from app.models import User, Producto, Cliente, Venta, DetalleVenta, Provincia, Distrito, Departamento
 from app import db, bcrypt, login_manager
 from flask_login import login_user, login_required, logout_user, current_user
-
+from xhtml2pdf import pisa
+from flask import make_response
+from io import BytesIO
+import qrcode
+from flask import send_file
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas
+from app.models import Venta
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import LETTER
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from app.models import Venta
+from flask_login import login_required
+from flask import Blueprint
+from datetime import datetime
+from app.forms import LoginForm  # Ajusta a tu estructura real
 
 main = Blueprint('main', __name__)
 
@@ -41,13 +60,24 @@ def register():
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    now = datetime.now()
+
+    # Saludo según la hora
+    if now.hour < 12:
+        saludo = "¡Buenos días!"
+    elif now.hour < 18:
+        saludo = "¡Buenas tardes!"
+    else:
+        saludo = "¡Buenas noches!"
+
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
             return redirect(url_for('main.index'))
         flash('Login failed. Check email and password.', 'danger')
-    return render_template('login.html', form=form)
+
+    return render_template('login.html', form=form, now=now , saludo=saludo)  
 
 @main.route('/logout')
 @login_required
@@ -218,3 +248,122 @@ def eliminar_venta(id):
     db.session.commit()
     flash('Venta eliminada con éxito', 'info')
     return redirect(url_for('main.ventas'))
+
+
+@main.route('/ventas/pdf')
+@login_required
+def ventas_pdf():
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=LETTER)
+    elements = []
+
+    styles = getSampleStyleSheet()
+    elements.append(Paragraph("Historial de Ventas", styles['Title']))
+    elements.append(Spacer(1, 12))
+
+    data = [["ID", "Cliente", "Fecha", "Productos", "Total (S/.)"]]
+
+    ventas = Venta.query.order_by(Venta.id).all()
+    for v in ventas:
+        productos = ", ".join([
+            f"{d.producto.nombre} x {d.cantidad}" for d in v.detalles
+        ])
+        fecha = v.fecha.strftime('%d/%m/%Y') if v.fecha else "N/A"
+        data.append([
+            str(v.id),
+            v.cliente.nombre,
+            fecha,
+            productos,
+            f"{v.total:.2f}"
+        ])
+
+    table = Table(data, colWidths=[30, 90, 70, 200, 60])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.indigo),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
+    ]))
+
+    elements.append(table)
+    doc.build(elements)
+
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name="ventas_historial.pdf", mimetype='application/pdf')
+
+
+@main.route('/boleta/<int:id>')
+@login_required
+def generar_boleta(id):
+    venta = Venta.query.get_or_404(id)
+    cliente = venta.cliente
+
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(30, height - 40, "Boleta de Venta")
+    c.setFont("Helvetica", 10)
+    c.drawString(30, height - 60, f"Boleta N°: {venta.id}")
+    c.drawString(30, height - 75, f"Cliente: {cliente.nombre} {cliente.apellido}")
+    c.drawString(30, height - 90, f"Email: {cliente.email}")
+    c.drawString(30, height - 105, f"Celular: {cliente.celular}")
+
+    y = height - 130
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(30, y, "Producto")
+    c.drawString(200, y, "Cantidad")
+    c.drawString(270, y, "Subtotal")
+
+    c.setFont("Helvetica", 10)
+    for detalle in venta.detalles:
+        y -= 15
+        c.drawString(30, y, detalle.producto.nombre)
+        c.drawString(200, y, str(detalle.cantidad))
+        c.drawString(270, y, f"S/ {detalle.subtotal:.2f}")
+
+    y -= 30
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(30, y, f"Total: S/ {venta.total:.2f}")
+
+    # Generar QR
+    qr_data = f"Boleta #{venta.id} - Cliente: {cliente.nombre} - Total: S/ {venta.total:.2f}"
+    qr_img = qrcode.make(qr_data)
+    qr_io = BytesIO()
+    qr_img.save(qr_io)
+    qr_io.seek(0)
+    c.drawImage(ImageReader(qr_io), width - 120, 40, 80, 80)
+
+    c.showPage()
+    c.save()
+    buffer.seek(0)
+
+    return send_file(buffer, as_attachment=True, download_name=f"boleta_{venta.id}.pdf", mimetype='application/pdf')
+
+
+@main.route('/admin/usuarios')
+@login_required
+def usuarios():
+    if current_user.rol != 'admin':
+        flash('Acceso restringido solo para administradores', 'danger')
+        return redirect(url_for('main.index'))
+
+    lista = User.query.all()
+    return render_template('usuarios.html', usuarios=lista)
+
+
+@main.route('/admin/mensajes')
+@login_required
+def messages():
+    if current_user.rol != 'admin':
+        flash('Acceso restringido solo para administradores', 'danger')
+        return redirect(url_for('main.index'))
+    
+    return render_template('mensajes.html')  # crea mensajes.html si no existe
+
+

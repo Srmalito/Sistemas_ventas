@@ -2,7 +2,7 @@
 {% block content %}
 <h2>Historial de Ventas</h2>
 <a href="{{ url_for('main.nueva_venta') }}" class="btn btn-primary mb-3">Nueva Venta</a>
-
+<a href="{{ url_for('main.ventas_pdf') }}" class="btn btn-danger mb-3">Descargar PDF</a>
 <table class="table table-bordered border-dark">
   <thead>
     <tr>
@@ -24,6 +24,7 @@
           <li>{{ d.producto.nombre }} x {{ d.cantidad }} ({{ d.subtotal }})</li>
           {% endfor %}
         </ul>
+        <a href="{{ url_for('main.generar_boleta', id=v.id) }}" class="btn btn-info btn-sm" target="_blank">Boleta PDF</a>
         <form method="POST" action="{{ url_for('main.eliminar_venta', id=v.id) }}" style="display:inline-block">
          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
          <button class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar venta?')">Eliminar</button>
